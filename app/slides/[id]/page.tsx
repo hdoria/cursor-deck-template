@@ -1,37 +1,19 @@
-import { notFound } from "next/navigation";
-import { getSlide, getTotalSlides } from "@/lib/slides";
+"use client";
+
+import { notFound, useParams } from "next/navigation";
 import { SlidePresenter } from "./SlidePresenter";
+import { useEditor } from "@/app/contexts/EditorContext";
 
-interface SlidePageProps {
-  params: Promise<{ id: string }>;
-}
-
-export async function generateStaticParams() {
-  const total = getTotalSlides();
-  return Array.from({ length: total }, (_, i) => ({
-    id: String(i + 1),
-  }));
-}
-
-export async function generateMetadata({ params }: SlidePageProps) {
-  const { id } = await params;
+export default function SlidePage() {
+  const params = useParams();
+  const id = params.id as string;
   const slideId = parseInt(id, 10);
-  const slide = getSlide(slideId);
-
-  if (!slide) {
-    return { title: "Slide Not Found" };
-  }
-
-  return {
-    title: `${slide.title} | Workshop`,
-  };
-}
-
-export default async function SlidePage({ params }: SlidePageProps) {
-  const { id } = await params;
-  const slideId = parseInt(id, 10);
-  const slide = getSlide(slideId);
-  const total = getTotalSlides();
+  const { slides } = useEditor();
+  
+  const sortedSlides = [...slides].sort((a, b) => a.order - b.order);
+  const total = sortedSlides.length;
+  const slideIndex = slideId - 1;
+  const slide = sortedSlides[slideIndex];
 
   if (!slide || isNaN(slideId) || slideId < 1 || slideId > total) {
     notFound();

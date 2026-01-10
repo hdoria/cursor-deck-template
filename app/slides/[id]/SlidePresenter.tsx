@@ -2,10 +2,12 @@
 
 import { useEffect, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { AnimatePresence } from "framer-motion";
 import { Slide } from "@/components/Slide";
 import { SlideNav } from "@/components/SlideNav";
-import { Slide as SlideType, SlideNavigation } from "@/lib/types";
+import { Slide as SlideType } from "@/app/types/slide";
+import { SlideNavigation } from "@/lib/types";
 
 interface SlidePresenterProps {
   slide: SlideType;
@@ -151,22 +153,30 @@ export function SlidePresenter({ slide, navigation }: SlidePresenterProps) {
 
       <SlideNav navigation={navigation} />
 
-      {/* Fullscreen button */}
-      <button
-        onClick={toggleFullscreen}
-        className="fixed top-4 right-4 z-50 p-2 rounded-lg bg-surface/80 backdrop-blur-sm border border-surface-02 hover:bg-surface-02 transition-colors"
-        title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
-      >
-        {isFullscreen ? (
-          <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9L4 4m0 0v5m0-5h5M15 9l5-5m0 0v5m0-5h-5M9 15l-5 5m0 0v-5m0 5h5M15 15l5 5m0 0v-5m0 5h-5" />
-          </svg>
-        ) : (
-          <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
-          </svg>
-        )}
-      </button>
+      {/* Top controls */}
+      <div className="fixed top-4 left-4 z-50 flex items-center gap-2">
+        <Link
+          href="/admin"
+          className="px-3 py-1.5 text-xs rounded bg-surface/80 backdrop-blur-sm border border-surface-02 hover:bg-surface-02 transition-colors"
+        >
+          ← Editor
+        </Link>
+        <button
+          onClick={toggleFullscreen}
+          className="p-1.5 rounded bg-surface/80 backdrop-blur-sm border border-surface-02 hover:bg-surface-02 transition-colors"
+          title={isFullscreen ? "Sair da tela cheia (F)" : "Tela cheia (F)"}
+        >
+          {isFullscreen ? (
+            <svg className="w-4 h-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9L4 4m0 0v5m0-5h5M15 9l5-5m0 0v5m0-5h-5M9 15l-5 5m0 0v-5m0 5h5M15 15l5 5m0 0v-5m0 5h-5" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+            </svg>
+          )}
+        </button>
+      </div>
 
       {/* Keyboard shortcuts hint */}
       <div className="fixed bottom-8 right-8 text-foreground-muted/50 text-xs font-mono hidden md:block">

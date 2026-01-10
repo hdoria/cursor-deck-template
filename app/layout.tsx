@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { EditorProvider } from "@/app/contexts/EditorContext";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-code",
@@ -21,7 +22,9 @@ export function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${jetbrainsMono.variable} antialiased`}>
-        {children}
+        <EditorProvider>
+          {children}
+        </EditorProvider>
       </body>
     </html>
   );
