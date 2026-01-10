@@ -17,6 +17,28 @@ export function SlidePresenter({ slide, navigation }: SlidePresenterProps) {
   const { current, total, hasNext, hasPrev } = navigation;
   const [direction, setDirection] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Toggle fullscreen mode
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   const goTo = useCallback(
     (id: number, dir: number) => {
@@ -73,6 +95,11 @@ export function SlidePresenter({ slide, navigation }: SlidePresenterProps) {
           e.preventDefault();
           goLast();
           break;
+        case "f":
+        case "F":
+          e.preventDefault();
+          toggleFullscreen();
+          break;
         default:
           // Number keys for quick jump (1-9)
           if (e.key >= "1" && e.key <= "9") {
@@ -87,7 +114,7 @@ export function SlidePresenter({ slide, navigation }: SlidePresenterProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [goNext, goPrev, goFirst, goLast, goTo, current, total]);
+  }, [goNext, goPrev, goFirst, goLast, goTo, current, total, toggleFullscreen]);
 
   // Touch/swipe navigation
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -124,9 +151,26 @@ export function SlidePresenter({ slide, navigation }: SlidePresenterProps) {
 
       <SlideNav navigation={navigation} />
 
+      {/* Fullscreen button */}
+      <button
+        onClick={toggleFullscreen}
+        className="fixed top-4 right-4 z-50 p-2 rounded-lg bg-surface/80 backdrop-blur-sm border border-surface-02 hover:bg-surface-02 transition-colors"
+        title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
+      >
+        {isFullscreen ? (
+          <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9L4 4m0 0v5m0-5h5M15 9l5-5m0 0v5m0-5h-5M9 15l-5 5m0 0v-5m0 5h5M15 15l5 5m0 0v-5m0 5h-5" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+          </svg>
+        )}
+      </button>
+
       {/* Keyboard shortcuts hint */}
       <div className="fixed bottom-8 right-8 text-foreground-muted/50 text-xs font-mono hidden md:block">
-        ← → to navigate
+        ← → to navigate · F fullscreen
       </div>
     </div>
   );
